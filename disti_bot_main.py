@@ -1,35 +1,51 @@
-import keyboard_markups
+# bot (app) runner
+
+# import keyboard_markups
 import logging
-from aiogram import Bot, Dispatcher, executor, types
-import config
-from config import bot_token, proxy_url
+# # from aiogram import Bot, Dispatcher, executor, types
+# import config
+# from config import bot_token, proxy_url
 
 from aiogram.types import ReplyKeyboardRemove
 
-logging.basicConfig(filename=config.log_path,
-                    filemode=config.log_filemode,
-                    encoding=config.log_encoding,
-                    format=config.log_format,
-                    level=config.log_level)
+from aiogram import executor
+from loader import dp
+import handlers
+from helpers.notify_admin import send_to_admin
+from helpers.set_bot_commands import set_commands_info
+from data.config import load_consts
+
+async def run_on_startup(dispatcher):
+    # set default commands description
+    await set_commands_info(dispatcher)
+    # send message aboot starting bot
+    await send_to_admin(dispatcher)
+
+
+
+# logging.basicConfig(filename=config.log_path,
+#                     filemode=config.log_filemode,
+#                     encoding=config.log_encoding,
+#                     format=config.log_format,
+#                     level=config.log_level)
 
 # initialize bot
-bot = Bot(token=bot_token)
+# bot = Bot(token=bot_token)
 # for using on www.pythonanywhere.com with free account
 # bot = Bot(token=bot_token, proxy=proxy_url)
 
-dp = Dispatcher(bot)
+# dp = Dispatcher(bot)
 
-# start command
-@dp.message_handler(commands=['start'])
-async def get_start(message: types.Message):
-    if message.chat.type == 'private':
-        # logging.info(message) # for checking out message attributes
-        # TODO - очищать меню
-        await bot.send_message(
-                message.from_user.id,
-                f'Здравствуйте, {message.from_user.first_name}.\nДоступны команды\n/menu\n/help\n/about',
-                reply_markup=ReplyKeyboardRemove()
-            )
+# # start command
+# @dp.message_handler(commands=['start'])
+# async def get_start(message: types.Message):
+#     if message.chat.type == 'private':
+#         # logging.info(message) # for checking out message attributes
+#         await bot.send_message(
+#                 message.from_user.id,
+#                 f'Здравствуйте, {message.from_user.first_name}.\nДоступны команды\n/menu\n/help\n/about',
+#                 reply_markup=ReplyKeyboardRemove()
+#             )
 
 # help command
 @dp.message_handler(commands=['help'])
@@ -186,6 +202,7 @@ def main():
     executor.start_polling(
         dispatcher=dp,
         skip_updates=True,
+        on_startup=run_on_startup
     )
 
 if __name__ == '__main__':
