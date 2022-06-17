@@ -1,5 +1,5 @@
 import logging
-from aiogram import Dispatcher as dp
+from aiogram import Dispatcher
 from data.config import ADMIN_ID
 
 async def send_to_admin(dp: Dispatcher):
